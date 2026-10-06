@@ -113,6 +113,12 @@ ingress:
 
 Always allow DNS (port 53) in egress policies or all name resolution breaks:
 
+> **OpenShift/OKD**: The DNS operator's inter-pod communication uses port **5353**
+> (UDP+TCP) between `openshift-dns` daemonset pods. When targeting the
+> `openshift-dns` namespace in network policies, allow port 5353 in addition
+> to port 53. See [OpenShift Patterns](conditional/openshift-patterns.md#network-policies--dns-ports)
+> for details.
+
 ```yaml
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

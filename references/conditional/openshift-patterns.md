@@ -43,6 +43,23 @@ When OperatorHub, OLM, or custom operators are in scope:
 - Do not hand-roll CRDs owned by an installed operator unless the operator documentation requires it.
 - Validate custom resources against installed CRDs, not only generic Kubernetes schemas.
 
+## Network Policies — DNS Ports
+
+On OpenShift and OKD the DNS operator uses port **5353** (UDP+TCP) for
+inter-pod communication between `openshift-dns` daemonset pods and the
+endpoint-mirror service. Pod-to-CoreDNS still uses the standard port **53**
+for service discovery.
+
+When writing egress rules that target `openshift-dns` namespace:
+- **port 5353** — DNS operator internal communication (required for the
+  `openshift-dns` namespace's own DNS resolution)
+- **port 53** — Pod-level DNS resolution (standard `kube-system` egress)
+
+Allow **both** ports if your network policy covers both paths. Only
+allowing 5353 and blocking port 53 will not break service discovery — pods
+can still resolve through CoreDNS — but the `openshift-dns` operator
+itself will lose its upstream DNS path. Allow both for completeness.
+
 ## Validation
 
 - `oc apply --dry-run=server -f <manifest>`
@@ -52,6 +69,10 @@ When OperatorHub, OLM, or custom operators are in scope:
 - `oc get csv,subscription,operatorgroup -A` when OLM-managed resources are involved
 
 ## LLM Mistake Checklist
+
+- Network policies blocking DNS port 5353 for `openshift-dns` and flagging
+  it as incorrect, or only allowing port 53 on OpenShift clusters where the
+  DNS operator communicates on 5353.
 
 - Hardcoding a UID that violates OpenShift namespace UID ranges.
 - Asking users to edit default SCCs.

@@ -29,7 +29,7 @@ By default, pods in different namespaces can communicate freely. Default-deny Ne
 
 A complete namespace network baseline consists of three policies:
 1. **Default deny all** -- blocks all ingress and egress for every pod in the namespace.
-2. **Allow DNS** -- permits egress to kube-system on port 53 so service discovery works.
+2. **Allow DNS** -- permits egress to kube-system on port 53 (or 5353 on OpenShift/OKD, where the DNS operator communicates on 5353 between `openshift-dns` pods) so service discovery works.
 3. **Allow intra-namespace** -- permits pods within the same namespace to communicate.
 
 Additional policies are added as needed for cross-namespace communication (e.g., allowing the ingress controller namespace to reach application pods).
